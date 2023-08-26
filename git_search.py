@@ -17,22 +17,21 @@ def convert_repo_list_to_df(repo_list, category):
         attr_dict['comment'] = 'NEW'
         attr_dict['category'] = category
         attr_dict['repo_path'] = repo.full_name
-        attr_dict['url'] = 'https://github.com/{}'.format(repo.full_name)
+        attr_dict['url'] = f'https://github.com/{repo.full_name}'
         df_list.append(attr_dict)
-    result_df = pd.DataFrame(df_list)
-    return result_df
+    return pd.DataFrame(df_list)
 
 
 # generic search functions
 def search_repo(search_term: str, qualifier_dict: Dict):
     g = get_github_client()
-    qualifier_str = ' '.join(['{}:{}'.format(k, v) for k, v in iter(qualifier_dict.items())])
-    if qualifier_str != '':
-        final_search_term = '{} {}'.format(search_term, qualifier_str)
+    if qualifier_str := ' '.join(
+        [f'{k}:{v}' for k, v in iter(qualifier_dict.items())]
+    ):
+        final_search_term = f'{search_term} {qualifier_str}'
     else:
         final_search_term = search_term
-    repo_result = g.search_repositories(final_search_term)
-    return repo_result
+    return g.search_repositories(final_search_term)
 
 
 def search_repo_multiple_terms(term_list: List[str],
@@ -89,22 +88,17 @@ def search_repo_simple(search_term: str = None,
     >>> created_at = None
     >>> pushed_date = None
     """
-    if search_term is None:
-        _search_term = ''
-    else:
-        _search_term = search_term
-
+    _search_term = '' if search_term is None else search_term
     qualifier_dict = {}
     if min_stars_number is not None:
-        qualifier_dict['stars'] = '>={}'.format(min_stars_number)
+        qualifier_dict['stars'] = f'>={min_stars_number}'
 
     if created_at is not None:
-        qualifier_dict['created'] = '>={}'.format(created_at)
+        qualifier_dict['created'] = f'>={created_at}'
 
     if pushed_date is not None:
-        qualifier_dict['pushed'] = '>={}'.format(pushed_date)
-    search_result = search_repo(_search_term, qualifier_dict)
-    return search_result
+        qualifier_dict['pushed'] = f'>={pushed_date}'
+    return search_repo(_search_term, qualifier_dict)
 
 
 def search_new_repo_by_category(category: str,
@@ -121,113 +115,9 @@ def search_new_repo_by_category(category: str,
     >>> min_stars_number = 100
     >>> existing_repo_df = get_repo_list()
     """
-    print('*** searching for category [{}] ***'.format(category))
+    print(f'*** searching for category [{category}] ***')
     combined_df = None
-    if category == 'Deep Learning And Reinforcement Learning':
-        combined_df = search_repo_multiple_terms(['deep learning trading',
-                                                  'deep learning finance',
-                                                  'reinforcement learning trading',
-                                                  'reinforcement learning finance'],
-                                                 category,
-                                                 min_stars_number=min_stars_number
-                                                 )
-
-    elif category == 'Other Models':
-        combined_df = search_repo_multiple_terms(['machine learning trading',
-                                                  'machine learning finance'],
-                                                 category,
-                                                 min_stars_number=min_stars_number
-                                                 )
-    elif category == 'Data Processing Techniques and Transformations':
-        combined_df = search_repo_multiple_terms(['data transformation trading',
-                                                  'data transformation finance',
-                                                  'data transformation time series',
-                                                  'data processing trading',
-                                                  'data processing finance',
-                                                  'power transform trading',
-                                                  'power transform finance',
-                                                  'standardization normalization trading',
-                                                  'standardization normalization finance',
-                                                  ],
-                                                 category,
-                                                 min_stars_number=int(min_stars_number * 0.5)
-                                                 )
-    elif category == 'Portfolio Selection and Optimisation':
-        combined_df = search_repo_multiple_terms(['portfolio optimization machine learning finance',
-                                                  'portfolio optimization machine learning trading',
-                                                  'portfolio construction machine learning finance',
-                                                  'portfolio construction machine learning trading',
-                                                  'portfolio optimization finance',
-                                                  'portfolio optimization trading',
-                                                  'portfolio construction finance',
-                                                  'portfolio construction trading'
-                                                  ],
-                                                 category,
-                                                 min_stars_number=min_stars_number
-                                                 )
-    elif category == 'Factor and Risk Analysis':
-        combined_df = search_repo_multiple_terms(['risk factor finance',
-                                                  'risk factor trading',
-                                                  'risk premia factor finance',
-                                                  'risk premia factor trading',
-                                                  'style factor finance',
-                                                  'style factor trading',
-                                                  'macro factor finance',
-                                                  'macro factor trading',
-                                                  ],
-                                                 category,
-                                                 min_stars_number=int(min_stars_number * 0.05)
-                                                 )
-    elif category == 'Unsupervised':
-        combined_df = search_repo_multiple_terms(['unsupervised finance',
-                                                  'unsupervised trading'
-                                                  ],
-                                                 category,
-                                                 min_stars_number=int(min_stars_number * 0.1)
-                                                 )
-    elif category == 'Textual':
-        combined_df = search_repo_multiple_terms(['NLP finance',
-                                                  'NLP trading'
-                                                  ],
-                                                 category,
-                                                 min_stars_number=min_stars_number
-                                                 )
-    elif category == 'Derivatives and Hedging':
-        combined_df = search_repo_multiple_terms(['derivatives finance',
-                                                  'derivatives trading',
-                                                  'quantlib trading',
-                                                  'quantlib finance',
-                                                  'hedging finance',
-                                                  'hedging trading',
-                                                  'option trading',
-                                                  'option finance',
-                                                  'delta hedge trading',
-                                                  'delta hedge finance'
-                                                  ],
-                                                 category,
-                                                 min_stars_number=min_stars_number
-                                                 )
-    elif category == 'Fixed Income':
-        combined_df = search_repo_multiple_terms(['corporate bond finance',
-                                                  'corporate bond trading',
-                                                  'muni bond trading',
-                                                  'muni bond finance',
-                                                  'investment grade finance',
-                                                  'investment grade trading',
-                                                  'high yield trading',
-                                                  'high yield finance',
-                                                  'credit rating trading',
-                                                  'credit rating finance',
-                                                  'fixed income trading',
-                                                  'fixed income finance',
-                                                  'corporate bond',
-                                                  'muni bond',
-                                                  'credit rating'
-                                                  ],
-                                                 category,
-                                                 min_stars_number=int(min_stars_number * 0.2)
-                                                 )
-    elif category == 'Alternative Finance':
+    if category == 'Alternative Finance':
         # don't include crypto here as it will skew the results, consider putting it as a seperate category
         combined_df = search_repo_multiple_terms(['private equity',
                                                   'venture capital',
@@ -243,23 +133,6 @@ def search_new_repo_by_category(category: str,
                                                  category,
                                                  min_stars_number=int(min_stars_number * 0.5)
                                                  )
-    elif category == 'Extended Research':
-        combined_df = search_repo_multiple_terms(['fraud detection',
-                                                  'behavioural finance',
-                                                  'corporate finance',
-                                                  'financial economics',
-                                                  'mathematical finance',
-                                                  'liquidity finance',
-                                                  'fx trading',
-                                                  'company life cycle',
-                                                  'merger and acquisition',
-                                                  'farmland trading',
-                                                  'HFT',
-                                                  'high frequency trading'
-                                                  ],
-                                                 category,
-                                                 min_stars_number=int(min_stars_number * 0.5)
-                                                 )
     elif category == 'Courses':
         combined_df = search_repo_multiple_terms(['finance courses',
                                                   'machine learning courses',
@@ -270,6 +143,20 @@ def search_new_repo_by_category(category: str,
                                                   ],
                                                  category,
                                                  min_stars_number=min_stars_number * 2
+                                                 )
+    elif category == 'Data Processing Techniques and Transformations':
+        combined_df = search_repo_multiple_terms(['data transformation trading',
+                                                  'data transformation finance',
+                                                  'data transformation time series',
+                                                  'data processing trading',
+                                                  'data processing finance',
+                                                  'power transform trading',
+                                                  'power transform finance',
+                                                  'standardization normalization trading',
+                                                  'standardization normalization finance',
+                                                  ],
+                                                 category,
+                                                 min_stars_number=int(min_stars_number * 0.5)
                                                  )
     elif category == 'Data':
         combined_df = search_repo_multiple_terms(['financial data',
@@ -295,6 +182,113 @@ def search_new_repo_by_category(category: str,
                                                  min_stars_number=min_stars_number
                                                  )
 
+    elif category == 'Deep Learning And Reinforcement Learning':
+        combined_df = search_repo_multiple_terms(['deep learning trading',
+                                                  'deep learning finance',
+                                                  'reinforcement learning trading',
+                                                  'reinforcement learning finance'],
+                                                 category,
+                                                 min_stars_number=min_stars_number
+                                                 )
+
+    elif category == 'Derivatives and Hedging':
+        combined_df = search_repo_multiple_terms(['derivatives finance',
+                                                  'derivatives trading',
+                                                  'quantlib trading',
+                                                  'quantlib finance',
+                                                  'hedging finance',
+                                                  'hedging trading',
+                                                  'option trading',
+                                                  'option finance',
+                                                  'delta hedge trading',
+                                                  'delta hedge finance'
+                                                  ],
+                                                 category,
+                                                 min_stars_number=min_stars_number
+                                                 )
+    elif category == 'Extended Research':
+        combined_df = search_repo_multiple_terms(['fraud detection',
+                                                  'behavioural finance',
+                                                  'corporate finance',
+                                                  'financial economics',
+                                                  'mathematical finance',
+                                                  'liquidity finance',
+                                                  'fx trading',
+                                                  'company life cycle',
+                                                  'merger and acquisition',
+                                                  'farmland trading',
+                                                  'HFT',
+                                                  'high frequency trading'
+                                                  ],
+                                                 category,
+                                                 min_stars_number=int(min_stars_number * 0.5)
+                                                 )
+    elif category == 'Factor and Risk Analysis':
+        combined_df = search_repo_multiple_terms(['risk factor finance',
+                                                  'risk factor trading',
+                                                  'risk premia factor finance',
+                                                  'risk premia factor trading',
+                                                  'style factor finance',
+                                                  'style factor trading',
+                                                  'macro factor finance',
+                                                  'macro factor trading',
+                                                  ],
+                                                 category,
+                                                 min_stars_number=int(min_stars_number * 0.05)
+                                                 )
+    elif category == 'Fixed Income':
+        combined_df = search_repo_multiple_terms(['corporate bond finance',
+                                                  'corporate bond trading',
+                                                  'muni bond trading',
+                                                  'muni bond finance',
+                                                  'investment grade finance',
+                                                  'investment grade trading',
+                                                  'high yield trading',
+                                                  'high yield finance',
+                                                  'credit rating trading',
+                                                  'credit rating finance',
+                                                  'fixed income trading',
+                                                  'fixed income finance',
+                                                  'corporate bond',
+                                                  'muni bond',
+                                                  'credit rating'
+                                                  ],
+                                                 category,
+                                                 min_stars_number=int(min_stars_number * 0.2)
+                                                 )
+    elif category == 'Other Models':
+        combined_df = search_repo_multiple_terms(['machine learning trading',
+                                                  'machine learning finance'],
+                                                 category,
+                                                 min_stars_number=min_stars_number
+                                                 )
+    elif category == 'Portfolio Selection and Optimisation':
+        combined_df = search_repo_multiple_terms(['portfolio optimization machine learning finance',
+                                                  'portfolio optimization machine learning trading',
+                                                  'portfolio construction machine learning finance',
+                                                  'portfolio construction machine learning trading',
+                                                  'portfolio optimization finance',
+                                                  'portfolio optimization trading',
+                                                  'portfolio construction finance',
+                                                  'portfolio construction trading'
+                                                  ],
+                                                 category,
+                                                 min_stars_number=min_stars_number
+                                                 )
+    elif category == 'Textual':
+        combined_df = search_repo_multiple_terms(['NLP finance',
+                                                  'NLP trading'
+                                                  ],
+                                                 category,
+                                                 min_stars_number=min_stars_number
+                                                 )
+    elif category == 'Unsupervised':
+        combined_df = search_repo_multiple_terms(['unsupervised finance',
+                                                  'unsupervised trading'
+                                                  ],
+                                                 category,
+                                                 min_stars_number=int(min_stars_number * 0.1)
+                                                 )
     # only find ones that need to be inserted
     if combined_df is not None and not combined_df.empty and existing_repo_df is not None:
         combined_df = combined_df[
@@ -333,13 +327,13 @@ def search_new_repo_by_category_per_day(min_stars_number: int = 100):
     repo_df = get_repo_list()
     category_list = repo_df['category'].unique().tolist()
     # based on today's date, pick which category to search to get around api limit
-    current_date = datetime.datetime.today()
+    current_date = datetime.datetime.now()
     n_category = len(category_list)
     days_in_week = 7
     if n_category % days_in_week == 0:
-        n_repo_to_process_per_day = int(n_category / days_in_week)
+        n_repo_to_process_per_day = n_category // days_in_week
     else:
-        n_repo_to_process_per_day = int(n_category / days_in_week) + 1
+        n_repo_to_process_per_day = n_category // days_in_week + 1
     today_selection = current_date.weekday()
     repo_to_process = category_list[
                       today_selection * n_repo_to_process_per_day:(today_selection + 1) * n_repo_to_process_per_day]
