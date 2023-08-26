@@ -8,13 +8,10 @@ def get_github_client():
     github_app = os.environ.get('GIT_APP_ID')
     if github_app is None:
         github_token = os.environ.get('GIT_TOKEN')
-        g = Github(github_token)
+        return Github(github_token)
     else:
         github_app_secret = os.environ.get('GIT_APP_SECRET')
-        g = Github(
-            client_id=github_app,
-            client_secret=github_app_secret)
-    return g
+        return Github(client_id=github_app, client_secret=github_app_secret)
 
 
 # *******
@@ -49,7 +46,7 @@ def get_repo_attributes_dict(input_repo: Repository, last_commit_within_years: i
         'contributors_count': input_repo.get_contributors().totalCount
 
     }
-    today = datetime.datetime.today()
+    today = datetime.datetime.now()
     check_start_date = datetime.datetime(today.year - last_commit_within_years,
                                          today.month,
                                          today.day)

@@ -20,7 +20,7 @@ def get_repo_status():
         repo_path = row['repo_path']
         if not pd.isna(repo_path):
             try:
-                print('processing [{}]'.format(repo_path))
+                print(f'processing [{repo_path}]')
                 repo = g.get_repo(repo_path)
 
                 repo_attr_dict = get_repo_attributes_dict(repo)
@@ -64,14 +64,14 @@ def parse_readme_md():
                         elif len(split_sections) >= 3:
                             comment_str = '-'.join(split_sections[2:]).strip()
                         else:
-                            raise Exception('link_line [{}] not supported'.format(link_line))
+                            raise Exception(f'link_line [{link_line}] not supported')
 
                         title_and_link = split_sections[1].strip()
                         title = re.search(r'\[(.*?)\]', title_and_link)
                         title_str = None
                         if title is not None:
                             title_str = title.group(1)
-                            title_and_link = title_and_link.replace('[{}]'.format(title_str), '')
+                            title_and_link = title_and_link.replace(f'[{title_str}]', '')
                         m_link = re.search(r'\((.*?)\)', title_and_link)
                         link_str = None
                         if m_link is not None:
@@ -82,8 +82,7 @@ def parse_readme_md():
                 parsed_df = pd.DataFrame(parsed_list, columns=['name', 'url', 'comment'])
                 parsed_df['category'] = heading
                 all_df_list.append(parsed_df)
-    final_df = pd.concat(all_df_list).reset_index(drop=True)
-    return final_df
+    return pd.concat(all_df_list).reset_index(drop=True)
 
 
 if __name__ == '__main__':
